@@ -1,0 +1,45 @@
+FROM ubuntu:24.04
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt install -y software-properties-common libtbb-dev
+RUN add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get install -y python3.10 net-tools
+RUN ln -sf /usr/bin/python3.10 /usr/bin/python3
+
+RUN apt-get install -y ca-certificates git wget curl gcc g++ \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt install -y wget git gpg
+RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg
+RUN echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu noble unified" | tee /etc/apt/sources.list.d/intel-gpu-noble.list
+RUN apt update
+RUN apt install -y libze-intel-gpu1 libze1 intel-opencl-icd clinfo intel-gsc
+RUN apt install -y libze-dev intel-ocloc
+RUN apt-get update -y && apt-get install -y python3-pip
+
+RUN apt-get install -y ca-certificates git wget curl gcc g++ \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+
+WORKDIR /home/llamacpp_server
+
+#ARG filename=llama-cpp-ipex-llm-2.3.0b20250611-ubuntu-xeon.tgz
+RUN wget https://github.com/ipex-llm/ipex-llm/releases/download/v2.3.0-nightly/llama-cpp-ipex-llm-2.3.0b20250612-ubuntu-core.tgz
+
+#Xeon:
+#RUN wget https://github.com/ipex-llm/ipex-llm/releases/download/v2.3.0-nightly/llama-cpp-ipex-llm-2.3.0b20250611-ubuntu-xeon.tgz
+RUN tar -xvf llama-cpp-ipex-llm-2.3.0b20250612-ubuntu-core.tgz
+RUN rm llama-cpp-ipex-llm-2.3.0b20250612-ubuntu-core.tgz
+RUN ln -s  llama-cpp-ipex-llm-2.3.0b20250612-ubuntu-core llama-cpp
+
+ENV PATH="$PATH:/home/ollama_ipex_server/llama-cpp"
+ENV LD_LIBRARY_PATH="/home/ollama_ipex_server/llama-cpp"
+
+ENV OLLAMA_HOST=0.0.0.0:11434
+EXPOSE 11434
+ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["/bin/bash", "-c", "source /home/ollama_ov_server/openvino_genai_ubuntu24_2025.2.0.0.dev20250513_x86_64/setupvars.sh && /usr/bin/ollama serve"]
