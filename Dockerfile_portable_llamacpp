@@ -36,10 +36,11 @@ RUN tar -xvf llama-cpp-ipex-llm-2.3.0b20250612-ubuntu-core.tgz
 RUN rm llama-cpp-ipex-llm-2.3.0b20250612-ubuntu-core.tgz
 RUN ln -s  llama-cpp-ipex-llm-2.3.0b20250612-ubuntu-core llama-cpp
 
-ENV PATH="$PATH:/home/ollama_ipex_server/llama-cpp"
-ENV LD_LIBRARY_PATH="/home/ollama_ipex_server/llama-cpp"
+ENV PATH="$PATH:/home/llamacpp_server/llama-cpp"
+ENV LD_LIBRARY_PATH="/home/llamacpp_server/llama-cpp"
 
-ENV OLLAMA_HOST=0.0.0.0:11434
-EXPOSE 11434
+ENV LLAMA_ARG_HOST=0.0.0.0
+ENV LLAMA_ARG_PORT=8000
+
 ENTRYPOINT ["/bin/bash"]
 #ENTRYPOINT ["/bin/bash", "-c", "source /home/ollama_ov_server/openvino_genai_ubuntu24_2025.2.0.0.dev20250513_x86_64/setupvars.sh && /usr/bin/ollama serve"]
